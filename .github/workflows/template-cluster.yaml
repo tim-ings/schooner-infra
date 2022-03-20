@@ -1,0 +1,21 @@
+name: Template Cluster
+
+on:
+  push:
+    branches:
+      - HEAD
+
+jobs:
+  template:
+    name: Template
+    timeout-minutes: 10
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Template cluster
+        uses: tim-ings/schooner/actions/template-cluster@HEAD
+        with:
+          awsAccessKeyId: "${{ secrets.AAAA }}"
+          awsSecretAccessKey: "${{ secrets.AAAA }}"
+          digitalOceanToken: "${{ secrets.AAAA }}"
+          digitalOceanClusterKubeConfig: "${{ secrets.AAAA }}"
+          digitalOceanClusterContext: "${{ secrets.AAAA }}"

@@ -1,0 +1,54 @@
+apiVersion: cluster.schooner.tim-ings.com/v1
+kind: schooner-cluster
+metadata:
+  name: tim-test
+spec:
+  services:
+    - name: portfolio
+      repository: git@github.com:tim-ings/portfolio.git
+
+  infra:
+    repository: git@github.com:tim-ings/schooner-infra.git
+    ingress:
+      controller:
+        replicas: 1
+      auth:
+        oauth2Proxy:
+          enabled: true
+          google:
+            fromSecret:
+              reference: /prod/infra/oauth2-proxy
+              properties:
+                clientId: clientId
+                clientSecret: clientSecret
+                cookieSecret: cookieSecret
+      dns:
+        infraDomain: infra.test.tim-ings.com
+        external:
+          enabled: true
+          digitalocean:
+            accessToken:
+              fromSecret:
+                reference: /prod/infra/external-dns
+                property: doAccessToken
+      tls:
+        letsencrypt:
+          enabled: true
+          email: tim@tim-ings.com
+          server: https://acme-staging-v02.api.letsencrypt.org/directory
+          digitalOcean:
+            accessToken:
+              fromSecret:
+                reference: /prod/infra/cert-manager
+                property: doAccessToken
+    logging:
+      retentionPeriod: 7d
+      volumeSize: 5Gi
+    metrics:
+      retentionPeriod: 7d
+      volumeSize: 5Gi
+      scrapeInterval: 10s
+      evaluationInterval: 15s
+    secrets:
+      awsRegion: ap-southeast-2
+      pollIntervalMilliseconds: 3600000 # 60 minutes
