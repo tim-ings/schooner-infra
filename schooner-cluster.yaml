@@ -6,9 +6,11 @@ spec:
   services:
     - name: portfolio
       repository: git@github.com:tim-ings/portfolio.git
+      deployKeySecretReference: /prod/deploy-key/portfolio
 
   infra:
     repository: git@github.com:tim-ings/schooner-infra.git
+    deployKeySecretReference: /prod/deploy-key/infra
     ingress:
       controller:
         replicas: 1

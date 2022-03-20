@@ -14,8 +14,8 @@ jobs:
       - name: Template cluster
         uses: tim-ings/schooner/actions/template-cluster@HEAD
         with:
-          awsAccessKeyId: "${{ secrets.AAAA }}"
-          awsSecretAccessKey: "${{ secrets.AAAA }}"
-          digitalOceanToken: "${{ secrets.AAAA }}"
-          digitalOceanClusterKubeConfig: "${{ secrets.AAAA }}"
-          digitalOceanClusterContext: "${{ secrets.AAAA }}"
+          awsAccessKeyId: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          awsSecretAccessKey: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          digitalOceanToken: "${{ secrets.DO_TOKEN }}"
+          digitalOceanClusterName: "${{ secrets.DO_CLUSTER_NAME }}"
+          digitalOceanClusterContext: "${{ secrets.DO_CLUSTER_CONTEXT }}"
