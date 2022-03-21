@@ -17,5 +17,5 @@ jobs:
           awsAccessKeyId: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           awsSecretAccessKey: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           digitalOceanToken: "${{ secrets.DO_TOKEN }}"
-          digitalOceanClusterName: foo-prod
-          digitalOceanClusterContext: do-sgp1-foo-prod
+          digitalOceanClusterName: tim-test
+          digitalOceanClusterContext: do-sgp1-tim-test
