@@ -7,6 +7,7 @@ spec:
     - name: portfolio
       repository: git@github.com:tim-ings/portfolio.git
       deployKeySecretReference: /prod/deploy-key/portfolio
+      values: values.prod.yaml
 
   infra:
     repository: git@github.com:tim-ings/schooner-infra.git
