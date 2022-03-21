@@ -19,7 +19,7 @@ spec:
           enabled: true
           google:
             fromSecret:
-              reference: /prod/infra/oauth2-proxy
+              reference: /dev/infra/oauth2-proxy
               properties:
                 clientId: clientId
                 clientSecret: clientSecret
