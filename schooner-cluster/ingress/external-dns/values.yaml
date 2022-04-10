@@ -1,0 +1,6 @@
+digitaloceanAccessTokenReference: /prod/infra/external-dns
+digitaloceanAccessTokenProperty: doAccessToken
+external-dns:
+  provider: digitalocean
+  digitalocean:
+    secretName: schooner-external-dns-credentials

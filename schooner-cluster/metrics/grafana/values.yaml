@@ -1,0 +1,79 @@
+dashboards:
+  application-performance:
+    json: dashboards/application-performance.json
+  coredns:
+    json: dashboards/coredns.json
+  kubernetes:
+    json: dashboards/kubernetes.json
+  nginx-ingress:
+    json: dashboards/nginx-ingress.json
+grafana:
+  ingress:
+    enabled: true
+    path: /grafana/?(.*)
+    hosts:
+      - infra.test.tim-ings.com
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+      cert-manager.io/cluster-issuer: schooner-cert-issuer
+      external-dns.alpha.kubernetes.io/hostname: infra.test.tim-ings.com
+      nginx.ingress.kubernetes.io/auth-url: >-
+        http://schooner-oauth2-proxy.schooner-ingress.svc.cluster.local/oauth2/auth
+      nginx.ingress.kubernetes.io/auth-signin: https://$host/oauth2/start?rd=$escaped_request_uri
+    tls:
+      - hosts:
+          - infra.test.tim-ings.com
+        secretName: schooner-grafana-ingress-tls
+  persistence:
+    enabled: false
+  service:
+    port: 9092
+  adminUsername: admin
+  adminPassword: admin
+  grafana.ini:
+    auth:
+      disable_login_form: true
+      disable_signout_menu: true
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+    users:
+      allow_sign_up: false
+      auto_assign_org: true
+      auto_assign_org_role: Admin
+    security:
+      cookie_secure: true
+      cookie_samesite: lax
+    server:
+      domain: infra.test.tim-ings.com
+      root_url: https://infra.test.tim-ings.com/grafana/
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus
+          type: prometheus
+          url: http://schooner-prometheus-server:9090
+          access: proxy
+          isDefault: true
+        - name: loki
+          type: loki
+          url: http://schooner-loki.schooner-logging.svc:3100
+          access: proxy
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: default
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL

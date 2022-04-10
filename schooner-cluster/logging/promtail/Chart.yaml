@@ -1,0 +1,8 @@
+apiVersion: v2
+description: Log collection agent for loki
+name: schooner-promtail
+version: 1.0.0
+dependencies:
+  - name: promtail
+    version: 3.9.1
+    repository: https://grafana.github.io/helm-charts

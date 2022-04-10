@@ -1,0 +1,28 @@
+ingress-nginx:
+  defaultBackend:
+    enabled: false
+  controller:
+    kind: DaemonSet
+    hostNetwork: true
+    dnsPolicy: ClusterFirstWithHostNet
+    daemonset:
+      useHostPort: true
+    extraArgs:
+      enable-ssl-passthrough: true
+    stats:
+      enabled: true
+    metrics:
+      enabled: true
+    publishService:
+      enabled: true
+    replicaCount: 1
+    config:
+      use-forwarded-headers: 'true'
+    service:
+      type: ClusterIP
+      enableHttp: false
+      targetPorts:
+        https: 443
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-passthrough: 'true'
+        annotations.external-dns.alpha.kubernetes.io/hostname: infra.test.tim-ings.com

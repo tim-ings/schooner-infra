@@ -1,0 +1,7 @@
+promtail:
+  loki:
+    serviceName: schooner-loki.schooner-logging.svc
+    servicePort: 3100
+    serviceScheme: http
+  config:
+    lokiAddress: http://schooner-loki:3100/loki/api/v1/push

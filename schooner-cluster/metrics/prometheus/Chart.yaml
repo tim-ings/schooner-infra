@@ -1,0 +1,8 @@
+apiVersion: v2
+description: Time-series metrics aggregator
+name: schooner-prometheus
+version: 1.0.0
+dependencies:
+  - name: prometheus
+    version: 14.9.2
+    repository: https://prometheus-community.github.io/helm-charts

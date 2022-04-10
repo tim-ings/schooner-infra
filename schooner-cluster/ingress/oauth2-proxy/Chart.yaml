@@ -1,0 +1,8 @@
+apiVersion: v2
+description: Authentication proxy
+name: schooner-oauth2-proxy
+version: 1.0.0
+dependencies:
+  - name: oauth2-proxy
+    version: 4.2.2
+    repository: https://oauth2-proxy.github.io/manifests

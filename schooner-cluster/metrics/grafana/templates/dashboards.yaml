@@ -1,0 +1,13 @@
+{{ $files := .Files }}
+{{- range $key, $value := .Values.dashboards }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "dashboards-{{ $key }}"
+  labels:
+    grafana_dashboard: "true"
+data:
+{{ $key | indent 2 }}.json:
+{{ toYaml ($files.Get $value.json) | indent 4 }}
+---
+{{- end }}

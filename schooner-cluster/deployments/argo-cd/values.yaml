@@ -1,0 +1,263 @@
+deployKeys:
+  schooner-deploy-key-infra: /prod/deploy-key/infra
+  schooner-deploy-key-portfolio: /prod/deploy-key/portfolio
+namespaces:
+  - schooner-metrics
+  - schooner-logging
+  - schooner-ingress
+  - schooner-service-portfolio
+argo-cd:
+  server:
+    ingress:
+      enabled: true
+      hosts:
+        - infra.test.tim-ings.com
+      tls:
+        - secretName: infra-tls
+          hosts:
+            - infra.test.tim-ings.com
+      paths:
+        - /argocd/?(.*)
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: schooner-cert-issuer
+        external-dns.alpha.kubernetes.io/hostname: infra.test.tim-ings.com
+        nginx.ingress.kubernetes.io/auth-url: >-
+          http://schooner-oauth2-proxy.schooner-ingress.svc.cluster.local/oauth2/auth
+        nginx.ingress.kubernetes.io/auth-signin: https://$host/oauth2/start?rd=$escaped_request_uri
+        nginx.ingress.kubernetes.io/backend-protocol: http
+        nginx.ingress.kubernetes.io/rewrite-target: /$1
+    extraArgs:
+      - '--insecure'
+      - '--disable-auth'
+      - '--basehref'
+      - /argocd
+    additionalProjects:
+      - name: infra
+        description: Schooner cluster infrastructure
+        destinations:
+          - namespace: schooner-deployments
+            server: https://kubernetes.default.svc
+          - namespace: schooner-metrics
+            server: https://kubernetes.default.svc
+          - namespace: schooner-logging
+            server: https://kubernetes.default.svc
+          - namespace: schooner-ingress
+            server: https://kubernetes.default.svc
+          - namespace: schooner-secrets
+            server: https://kubernetes.default.svc
+          - namespace: kube-system
+            server: https://kubernetes.default.svc
+        sourceRepos:
+          - git@github.com:tim-ings/schooner-infra.git
+        clusterResourceWhitelist:
+          - group: '*'
+            kind: '*'
+      - name: portfolio
+        destinations:
+          - namespace: schooner-service-portfolio
+            server: https://kubernetes.default.svc
+        sourceRepos:
+          - git@github.com:tim-ings/portfolio.git
+    additionalApplications:
+      - name: schooner-argo-cd
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/deployments/argo-cd/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-deployments
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-schoonerscope
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/deployments/schoonerscope/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-deployments
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-external-dns
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/ingress/external-dns/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-ingress
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-ingress-nginx
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/ingress/ingress-nginx/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-ingress
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-oauth2-proxy
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/ingress/oauth2-proxy/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-ingress
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-cert-manager
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/ingress/cert-manager/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-ingress
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-prometheus
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/metrics/prometheus/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-metrics
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-grafana
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/metrics/grafana/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-metrics
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-promtail
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/logging/promtail/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-logging
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-loki
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/logging/loki/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-logging
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: schooner-external-secrets
+        project: infra
+        source:
+          targetRevision: schooner-artifacts
+          repoURL: git@github.com:tim-ings/schooner-infra.git
+          path: schooner-cluster/secrets/external-secrets/
+          helm:
+            valueFiles:
+              - values.yaml
+        destination:
+          namespace: schooner-secrets
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+      - name: portfolio
+        project: portfolio
+        source:
+          repoURL: git@github.com:tim-ings/portfolio.git
+          path: schooner-service/
+          helm:
+            valueFiles:
+              - values.test.yaml
+        destination:
+          namespace: schooner-service-portfolio
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+    config:
+      repositories: |
+        - url: git@github.com:tim-ings/schooner-infra.git
+          sshPrivateKeySecret:
+            name: schooner-deploy-key-infra
+            key: deployKey
+        - url: git@github.com:tim-ings/portfolio.git
+          sshPrivateKeySecret:
+            name: schooner-deploy-key-portfolio
+            key: deployKey
